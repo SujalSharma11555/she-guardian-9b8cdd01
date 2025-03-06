@@ -1,28 +1,28 @@
 
 import React, { useEffect } from "react";
-import SafetyQuestion from "@/components/safety/SafetyQuestion";
+import AuthForm from "@/components/auth/AuthForm";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
-const Index = () => {
-  const { user, initialized } = useAuth();
+const Auth = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (initialized && user) {
+    if (user) {
       // If user is already logged in, redirect to dashboard
       navigate("/dashboard");
     }
-  }, [user, initialized, navigate]);
+  }, [user, navigate]);
 
   return (
     <Layout hideNavigation>
       <div className="min-h-screen flex items-center justify-center py-12 px-4">
-        <SafetyQuestion />
+        <AuthForm />
       </div>
     </Layout>
   );
 };
 
-export default Index;
+export default Auth;
