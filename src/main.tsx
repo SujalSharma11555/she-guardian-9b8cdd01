@@ -5,7 +5,8 @@ import './index.css'
 
 // Polyfill for vibration API
 if (!('vibrate' in navigator)) {
-  navigator.vibrate = (pattern) => {
+  // Use type assertion to tell TypeScript that we're adding the vibrate method
+  (navigator as any).vibrate = (pattern: number | number[]) => {
     console.log('Vibration not supported. Pattern:', pattern);
     return false;
   };
