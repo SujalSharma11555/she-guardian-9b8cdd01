@@ -38,7 +38,14 @@ const AuthForm: React.FC = () => {
   
   return (
     <Card className="glass-card shadow-lg border-she-pink/20 max-w-sm mx-auto">
-      <CardHeader className="space-y-1">
+      <CardHeader className="space-y-1 flex flex-col items-center">
+        <div className="w-16 h-16 mb-2">
+          <img 
+            src="/lovable-uploads/31aeb8e2-e1df-4f50-a065-45545bf03094.png" 
+            alt="SHE-Guardian Logo" 
+            className="w-full h-full object-contain"
+          />
+        </div>
         <CardTitle className="text-2xl text-center text-she-purple">SHE-Guardian</CardTitle>
         <CardDescription className="text-center">
           {isLogin ? "Sign in to access your safety tools" : "Create a new account"}

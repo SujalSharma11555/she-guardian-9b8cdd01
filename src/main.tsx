@@ -13,5 +13,6 @@ if (!('vibrate' in navigator)) {
 }
 
 console.log('SHE-Guardian - Women\'s Safety App starting up...');
+console.log('SHE-Guardian - Suraksha Bhi, Sammaan Bhi');
 
 createRoot(document.getElementById("root")!).render(<App />);

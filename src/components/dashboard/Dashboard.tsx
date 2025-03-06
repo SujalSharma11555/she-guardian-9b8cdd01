@@ -41,12 +41,21 @@ const Dashboard: React.FC = () => {
                 {user?.name || "User"}
               </CardDescription>
             </div>
-            <Avatar>
-              <AvatarImage src={user?.photoUrl || ""} alt={user?.name || "User"} />
-              <AvatarFallback className="bg-she-pink text-she-purple">
-                {user?.name?.charAt(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
+            <div className="flex items-center">
+              <div className="w-12 h-12 mr-2">
+                <img 
+                  src="/lovable-uploads/31aeb8e2-e1df-4f50-a065-45545bf03094.png" 
+                  alt="SHE-Guardian Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <Avatar>
+                <AvatarImage src={user?.photoUrl || ""} alt={user?.name || "User"} />
+                <AvatarFallback className="bg-she-pink text-she-purple">
+                  {user?.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         </CardHeader>
       </Card>
