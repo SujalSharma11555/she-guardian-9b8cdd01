@@ -13,6 +13,7 @@ import Contacts from "./pages/Contacts";
 import Panic from "./pages/Panic";
 import Voice from "./pages/Voice";
 import More from "./pages/More";
+import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,11 @@ const App = () => (
               <Route path="/voice" element={
                 <ProtectedRoute>
                   <Voice />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkin" element={
+                <ProtectedRoute>
+                  <CheckIn />
                 </ProtectedRoute>
               } />
               <Route path="/more" element={

@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Phone, Shield, Users, Volume2 } from "lucide-react";
+import { MapPin, Phone, Shield, Users, Volume2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SOSButton from "@/components/sos/SOSButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -120,6 +120,20 @@ const Dashboard: React.FC = () => {
         <Card 
           className="glass-card shadow-md border-she-pink/10 animate-scale-in cursor-pointer hover:shadow-lg transition-all" 
           style={{ animationDelay: "0.5s" }}
+          onClick={() => navigate("/checkin")}
+        >
+          <CardContent className="p-4 flex flex-col items-center text-center">
+            <div className="h-12 w-12 rounded-full bg-she-pink/20 flex items-center justify-center mb-3">
+              <Clock className="h-6 w-6 text-she-purple" />
+            </div>
+            <h3 className="font-medium">Safety Check-In</h3>
+            <p className="text-xs text-gray-500 mt-1">Set timers for activities</p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="glass-card shadow-md border-she-pink/10 animate-scale-in cursor-pointer hover:shadow-lg transition-all" 
+          style={{ animationDelay: "0.6s" }}
           onClick={triggerFakeCall}
         >
           <CardContent className="p-4 flex flex-col items-center text-center">
