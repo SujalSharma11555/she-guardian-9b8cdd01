@@ -1,292 +1,189 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, User, Phone, PhoneCall, Edit, Trash2 } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Phone, Plus, Trash2, Edit, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import ContactForm from "./ContactForm";
 
 interface Contact {
   id: string;
   name: string;
   phone: string;
-  type: "emergency" | "custom";
+  relation: string;
+  isPrimary?: boolean;
 }
 
-const defaultEmergencyContacts: Contact[] = [
-  {
-    id: "women-helpline",
-    name: "Women's Helpline",
-    phone: "1800-123-4567",
-    type: "emergency"
-  },
-  {
-    id: "police",
-    name: "Police",
-    phone: "100",
-    type: "emergency"
-  },
-  {
-    id: "crime-helpline",
-    name: "Crime Helpline",
-    phone: "1090",
-    type: "emergency"
-  }
-];
-
 const ContactsList: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>(defaultEmergencyContacts);
-  const [newContact, setNewContact] = useState({ name: "", phone: "" });
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  const handleAddContact = () => {
-    if (!newContact.name || !newContact.phone) {
-      toast({
-        title: "Invalid Contact",
-        description: "Please provide both a name and phone number.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const contact = {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  
+  // Load initial emergency contacts
+  useEffect(() => {
+    // In a real app, this would come from a database
+    const emergencyContacts: Contact[] = [
+      {
+        id: "1",
+        name: "Women's Helpline",
+        phone: "1091",
+        relation: "Emergency Service",
+        isPrimary: true
+      },
+      {
+        id: "2",
+        name: "Police",
+        phone: "100",
+        relation: "Emergency Service",
+        isPrimary: true
+      },
+      {
+        id: "3",
+        name: "Crime Helpline",
+        phone: "1090",
+        relation: "Emergency Service",
+        isPrimary: true
+      }
+    ];
+    
+    setContacts(emergencyContacts);
+  }, []);
+  
+  const addContact = (contact: { name: string; phone: string; relation: string }) => {
+    const newContact: Contact = {
       id: Date.now().toString(),
-      name: newContact.name,
-      phone: newContact.phone,
-      type: "custom" as const
+      ...contact
     };
-
-    setContacts([...contacts, contact]);
-    setNewContact({ name: "", phone: "" });
-    setIsAddDialogOpen(false);
+    
+    setContacts([...contacts, newContact]);
+    setShowForm(false);
     
     toast({
-      title: "Contact Added",
-      description: `${contact.name} has been added to your contacts.`,
+      title: "Contact added",
+      description: `${contact.name} has been added to your emergency contacts`
     });
   };
-
-  const handleEditContact = () => {
-    if (!editingContact || !editingContact.name || !editingContact.phone) {
+  
+  const deleteContact = (id: string) => {
+    // Don't allow deletion of primary contacts
+    const contactToDelete = contacts.find(c => c.id === id);
+    
+    if (contactToDelete?.isPrimary) {
       toast({
-        title: "Invalid Contact",
-        description: "Please provide both a name and phone number.",
-        variant: "destructive",
+        title: "Cannot delete",
+        description: "This is a default emergency contact and cannot be deleted",
+        variant: "destructive"
       });
       return;
     }
-
-    const updatedContacts = contacts.map(contact => 
-      contact.id === editingContact.id ? editingContact : contact
+    
+    setContacts(contacts.filter(contact => contact.id !== id));
+    
+    toast({
+      title: "Contact deleted",
+      description: "The contact has been removed from your emergency contacts"
+    });
+  };
+  
+  const setPrimaryContact = (id: string) => {
+    setContacts(
+      contacts.map(contact => ({
+        ...contact,
+        isPrimary: contact.id === id ? true : contact.isPrimary
+      }))
     );
     
-    setContacts(updatedContacts);
-    setEditingContact(null);
-    setIsEditDialogOpen(false);
+    const contactName = contacts.find(c => c.id === id)?.name;
     
     toast({
-      title: "Contact Updated",
-      description: `${editingContact.name} has been updated.`,
+      title: "Primary contact set",
+      description: `${contactName} is now your primary emergency contact`
     });
   };
-
-  const handleDeleteContact = (contactId: string) => {
-    const contactToDelete = contacts.find(c => c.id === contactId);
-    if (contactToDelete?.type === "emergency") {
-      toast({
-        title: "Cannot Delete",
-        description: "Emergency contacts cannot be removed.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const updatedContacts = contacts.filter(contact => contact.id !== contactId);
-    setContacts(updatedContacts);
-    
-    toast({
-      title: "Contact Removed",
-      description: "The contact has been removed from your list.",
-    });
-  };
-
-  const simulateCall = (contact: Contact) => {
-    toast({
-      title: `Calling ${contact.name}`,
-      description: `Dialing ${contact.phone}...`,
-    });
-    // In a real app, this would initiate a phone call
-  };
-
+  
   return (
-    <div className="w-full space-y-4">
+    <div className="space-y-4">
       <Card className="glass-card shadow-md border-she-pink/10">
-        <CardHeader>
-          <CardTitle className="flex justify-between items-center">
-            <span>Emergency Contacts</span>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="bg-she-purple hover:bg-she-purple/90">
-                  <Plus size={16} className="mr-1" /> Add
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Add Contact</DialogTitle>
-                  <DialogDescription>
-                    Add a new emergency contact to your list
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-2">
-                    <Label htmlFor="name" className="text-right">
-                      Name
-                    </Label>
-                    <Input
-                      id="name"
-                      value={newContact.name}
-                      onChange={(e) => setNewContact({...newContact, name: e.target.value})}
-                      className="col-span-3"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-2">
-                    <Label htmlFor="phone" className="text-right">
-                      Phone
-                    </Label>
-                    <Input
-                      id="phone"
-                      value={newContact.phone}
-                      onChange={(e) => setNewContact({...newContact, phone: e.target.value})}
-                      className="col-span-3"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddContact}>Add Contact</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </CardTitle>
-          <CardDescription>
-            These contacts will be notified during emergencies
-          </CardDescription>
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Emergency Contacts</CardTitle>
+              <CardDescription>People to contact during emergencies</CardDescription>
+            </div>
+            <Button onClick={() => setShowForm(true)} size="sm">
+              <Plus size={16} className="mr-1" />
+              Add
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {contacts.map((contact) => (
-              <div 
-                key={contact.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700"
-              >
-                <div className="flex items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    contact.type === "emergency" ? "bg-she-coral/10" : "bg-she-purple/10"
-                  }`}>
-                    <User 
-                      size={20} 
-                      className={contact.type === "emergency" ? "text-she-coral" : "text-she-purple"} 
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <p className="font-medium">{contact.name}</p>
-                    <p className="text-sm text-gray-500">{contact.phone}</p>
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    size="icon" 
-                    variant="ghost" 
-                    onClick={() => simulateCall(contact)}
-                    className="h-8 w-8 rounded-full"
+          {showForm ? (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Add Emergency Contact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ContactForm 
+                  onAddContact={addContact} 
+                  onCancel={() => setShowForm(false)} 
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {contacts.length === 0 ? (
+                <p className="text-center text-gray-500 py-4">
+                  No emergency contacts added yet
+                </p>
+              ) : (
+                contacts.map(contact => (
+                  <div 
+                    key={contact.id} 
+                    className={`p-3 rounded-md flex justify-between items-center ${
+                      contact.isPrimary 
+                        ? "bg-she-pink/20 border border-she-pink/30" 
+                        : "bg-gray-100 dark:bg-gray-800"
+                    }`}
                   >
-                    <PhoneCall size={16} className="text-green-500" />
-                  </Button>
-                  
-                  {contact.type === "custom" && (
-                    <>
-                      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            size="icon" 
-                            variant="ghost"
-                            onClick={() => setEditingContact(contact)} 
-                            className="h-8 w-8 rounded-full"
-                          >
-                            <Edit size={16} className="text-she-purple" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Edit Contact</DialogTitle>
-                            <DialogDescription>
-                              Update your emergency contact details
-                            </DialogDescription>
-                          </DialogHeader>
-                          {editingContact && (
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-2">
-                                <Label htmlFor="edit-name" className="text-right">
-                                  Name
-                                </Label>
-                                <Input
-                                  id="edit-name"
-                                  value={editingContact.name}
-                                  onChange={(e) => setEditingContact({
-                                    ...editingContact,
-                                    name: e.target.value
-                                  })}
-                                  className="col-span-3"
-                                />
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-2">
-                                <Label htmlFor="edit-phone" className="text-right">
-                                  Phone
-                                </Label>
-                                <Input
-                                  id="edit-phone"
-                                  value={editingContact.phone}
-                                  onChange={(e) => setEditingContact({
-                                    ...editingContact,
-                                    phone: e.target.value
-                                  })}
-                                  className="col-span-3"
-                                />
-                              </div>
-                            </div>
-                          )}
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => {
-                              setIsEditDialogOpen(false);
-                              setEditingContact(null);
-                            }}>
-                              Cancel
-                            </Button>
-                            <Button onClick={handleEditContact}>Save Changes</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-she-purple/20 flex items-center justify-center mr-3">
+                        {contact.isPrimary ? (
+                          <Star size={18} className="text-she-purple" />
+                        ) : (
+                          <Phone size={18} className="text-she-purple" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{contact.name}</h3>
+                        <p className="text-xs text-gray-500">{contact.phone} • {contact.relation}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-1">
+                      {!contact.isPrimary && (
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => setPrimaryContact(contact.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Star size={16} className="text-gray-500" />
+                        </Button>
+                      )}
                       
                       <Button 
-                        size="icon" 
+                        size="sm" 
                         variant="ghost" 
-                        onClick={() => handleDeleteContact(contact.id)}
-                        className="h-8 w-8 rounded-full"
+                        onClick={() => deleteContact(contact.id)}
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/20"
                       >
-                        <Trash2 size={16} className="text-she-coral" />
+                        <Trash2 size={16} />
                       </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

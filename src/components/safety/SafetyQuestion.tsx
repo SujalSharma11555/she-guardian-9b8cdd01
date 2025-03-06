@@ -1,75 +1,129 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { ShieldCheck } from "lucide-react";
 
-const SafetyQuestion: React.FC = () => {
-  const [answered, setAnswered] = useState(false);
-  const navigate = useNavigate();
+interface SafetyQuestionProps {
+  onComplete: () => void;
+}
 
-  const handleAnswer = () => {
-    setAnswered(true);
-    toast({
-      title: "Safety Verified",
-      description: "Thank you for confirming your safety.",
-    });
+const safetyQuestions = [
+  {
+    question: "What would you do if you felt unsafe while walking at night?",
+    options: [
+      "Stay in well-lit areas and call a friend",
+      "Take a shortcut through a dark alley",
+      "Ignore the feeling and continue as normal",
+      "Share your location with a trusted contact"
+    ],
+    correctIndex: 3
+  },
+  {
+    question: "If you're being followed, what's the best action?",
+    options: [
+      "Run as fast as you can into an isolated area",
+      "Confront the person directly",
+      "Enter a public place with other people",
+      "Keep walking and ignore it"
+    ],
+    correctIndex: 2
+  },
+  {
+    question: "What information should you share with strangers online?",
+    options: [
+      "Your full name and address",
+      "Your general location but not specific address",
+      "Minimal personal information",
+      "Whatever they ask for to be polite"
+    ],
+    correctIndex: 2
+  }
+];
+
+const SafetyQuestion: React.FC<SafetyQuestionProps> = ({ onComplete }) => {
+  // Randomly select a question
+  const [questionIndex] = useState(() => Math.floor(Math.random() * safetyQuestions.length));
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  const currentQuestion = safetyQuestions[questionIndex];
+  
+  const handleSubmit = () => {
+    if (selectedOption === null) {
+      toast({
+        title: "Selection required",
+        description: "Please select an answer before submitting",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // After a brief delay, navigate to authentication
-    setTimeout(() => {
-      navigate("/auth");
-    }, 1500);
+    setIsSubmitted(true);
+    
+    if (selectedOption === currentQuestion.correctIndex) {
+      toast({
+        title: "Correct!",
+        description: "Good job understanding safety protocols"
+      });
+      
+      // Delay to allow user to see feedback
+      setTimeout(onComplete, 1500);
+    } else {
+      toast({
+        title: "That's not the safest option",
+        description: "Remember to prioritize your safety at all times",
+        variant: "destructive"
+      });
+      
+      // Reset after showing feedback
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setSelectedOption(null);
+      }, 2000);
+    }
   };
-
+  
   return (
-    <div className="w-full max-w-md mx-auto p-4 slide-up">
-      <Card className="glass-card shadow-xl border-she-pink/20 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-she-pink via-she-purple to-she-coral" />
-        <CardHeader className="space-y-1 text-center pt-8">
-          <div className="w-20 h-20 mx-auto bg-she-pink/20 rounded-full flex items-center justify-center mb-4">
-            <ShieldCheck className="w-10 h-10 text-she-purple" />
-          </div>
-          <CardTitle className="text-2xl font-bold">Safety Check</CardTitle>
+    <div className="max-w-md mx-auto">
+      <Card className="glass-card shadow-lg border-she-pink/20">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl text-she-purple">Safety Check</CardTitle>
           <CardDescription>
-            Before we begin, please confirm that you are safe at this moment
+            Before proceeding, please answer this safety question
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-6 pt-4">
-          {!answered ? (
-            <div className="space-y-4 w-full">
-              <Button
-                className="w-full h-12 bg-she-purple hover:bg-she-purple/90 text-white"
-                onClick={handleAnswer}
+        
+        <CardContent className="space-y-4">
+          <p className="font-medium text-center">{currentQuestion.question}</p>
+          
+          <div className="space-y-2">
+            {currentQuestion.options.map((option, index) => (
+              <div
+                key={index}
+                className={`
+                  p-3 rounded-md border cursor-pointer transition-all
+                  ${selectedOption === index ? 'border-she-purple bg-she-pink/20' : 'border-gray-200 hover:border-she-pink'}
+                  ${isSubmitted && index === currentQuestion.correctIndex ? 'bg-green-100 border-green-500' : ''}
+                  ${isSubmitted && selectedOption === index && index !== currentQuestion.correctIndex ? 'bg-red-100 border-red-500' : ''}
+                `}
+                onClick={() => !isSubmitted && setSelectedOption(index)}
               >
-                Yes, I am safe right now
-              </Button>
-              <Button
-                className="w-full h-12 bg-she-coral hover:bg-she-coral/90 text-white"
-                onClick={() => {
-                  toast({
-                    title: "Emergency Mode Activated",
-                    description: "We're here to help. Connecting to emergency services.",
-                    variant: "destructive",
-                  });
-                }}
-              >
-                No, I need help immediately
-              </Button>
-            </div>
-          ) : (
-            <div className="text-center py-4 animate-pulse">
-              <p className="text-she-purple font-medium">Safety confirmed!</p>
-              <p className="text-sm text-gray-500">Redirecting to login...</p>
-            </div>
-          )}
+                {option}
+              </div>
+            ))}
+          </div>
         </CardContent>
-        <CardFooter className="justify-center pb-8">
-          <p className="text-xs text-gray-500 max-w-xs text-center">
-            SHE-Guardian is designed to provide resources and assistance during emergencies. 
-            If you're in immediate danger, please call local emergency services directly.
-          </p>
+        
+        <CardFooter>
+          <Button 
+            onClick={handleSubmit}
+            disabled={isSubmitted || selectedOption === null}
+            className="w-full bg-she-purple hover:bg-she-purple/90"
+          >
+            {isSubmitted ? "Processing..." : "Submit Answer"}
+          </Button>
         </CardFooter>
       </Card>
     </div>

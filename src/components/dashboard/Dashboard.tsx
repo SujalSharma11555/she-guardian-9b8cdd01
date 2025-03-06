@@ -8,6 +8,7 @@ import SOSButton from "@/components/sos/SOSButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import LocationSharing from "@/components/location/LocationSharing";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -123,25 +124,9 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Location sharing */}
-      <Card 
-        className="glass-card shadow-md border-she-pink/10 animate-slide-up" 
-        style={{ animationDelay: "0.6s" }}
-      >
-        <CardHeader className="pb-2">
-          <div className="flex items-center">
-            <MapPin className="text-she-purple mr-2" size={18} />
-            <CardTitle className="text-base">Location Sharing</CardTitle>
-          </div>
-          <CardDescription>
-            Share your real-time location with trusted contacts
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button className="w-full bg-she-purple hover:bg-she-purple/90">
-            Share My Location
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="animate-slide-up" style={{ animationDelay: "0.6s" }}>
+        <LocationSharing />
+      </div>
     </div>
   );
 };
