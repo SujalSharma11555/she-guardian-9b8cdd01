@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Alarm, Clock, CheckCircle, X } from "lucide-react";
+import { Clock, CheckCircle, X, Bell, Shield } from "lucide-react";
 
 const SafetyCheckIn: React.FC = () => {
   const [isCheckInActive, setIsCheckInActive] = useState(false);
@@ -82,6 +82,11 @@ const SafetyCheckIn: React.FC = () => {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const getProgressPercentage = () => {
+    const initialSeconds = parseInt(duration, 10) * 60;
+    return Math.max(0, (timeRemaining / initialSeconds) * 100);
+  };
+
   return (
     <Card className="glass-card shadow-md border-she-pink/10">
       <CardHeader className="pb-3">
@@ -97,10 +102,31 @@ const SafetyCheckIn: React.FC = () => {
         {isCheckInActive ? (
           <div className="space-y-6">
             <div className="text-center">
-              <div className="text-4xl font-bold text-she-purple mb-2">
-                {formatTimeRemaining()}
+              <div className="relative w-32 h-32 mx-auto">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-3xl font-bold text-she-purple">
+                    {formatTimeRemaining()}
+                  </div>
+                </div>
+                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle 
+                    cx="50" cy="50" r="45" 
+                    fill="none" 
+                    stroke="#f0f0f0" 
+                    strokeWidth="8"
+                  />
+                  <circle 
+                    cx="50" cy="50" r="45" 
+                    fill="none" 
+                    stroke="#9370DB" 
+                    strokeWidth="8"
+                    strokeDasharray="283"
+                    strokeDashoffset={283 - (283 * getProgressPercentage() / 100)}
+                    strokeLinecap="round"
+                  />
+                </svg>
               </div>
-              <p className="text-sm text-gray-500">Time remaining until check-in required</p>
+              <p className="text-sm text-gray-500 mt-2">Time remaining until check-in required</p>
             </div>
             
             <div className="bg-she-pink/20 p-4 rounded-md">
@@ -113,17 +139,27 @@ const SafetyCheckIn: React.FC = () => {
                     Check-in required in {formatTimeRemaining()}
                   </p>
                 </div>
-                <Alarm className="text-she-purple" size={20} />
+                <Bell className="text-she-purple" size={20} />
               </div>
             </div>
             
-            <Button 
-              className="w-full bg-green-500 hover:bg-green-600"
-              onClick={endCheckIn}
-            >
-              <CheckCircle className="mr-2" size={16} />
-              I'm Safe - Complete Check-In
-            </Button>
+            <div className="grid grid-cols-2 gap-3">
+              <Button 
+                className="w-full bg-green-500 hover:bg-green-600"
+                onClick={endCheckIn}
+              >
+                <CheckCircle className="mr-2" size={16} />
+                I'm Safe
+              </Button>
+              
+              <Button 
+                className="w-full bg-red-500 hover:bg-red-600"
+                onClick={triggerAlert}
+              >
+                <Shield className="mr-2" size={16} />
+                Alert Contacts
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
