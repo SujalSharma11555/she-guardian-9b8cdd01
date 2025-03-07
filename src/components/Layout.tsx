@@ -28,21 +28,28 @@ const Layout: React.FC<LayoutProps> = ({ children, hideNavigation = false }) => 
       </div>
 
       {!hideNavigation && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-10">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 shadow-lg z-10">
           <div className="max-w-screen-md mx-auto">
             <div className="flex justify-around items-center h-16">
               {navItems.map((item) => (
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`nav-item ${
+                  className={`nav-item group ${
                     path === item.path
                       ? "text-she-coral dark:text-she-deepPink"
                       : "text-gray-500 dark:text-gray-400"
                   }`}
                   aria-label={item.label}
                 >
-                  <item.icon size={24} />
+                  <div className="flex flex-col items-center">
+                    <item.icon size={22} className="transition-all duration-200" />
+                    <span className={`text-[10px] mt-1 transition-all duration-200 ${
+                      path === item.path ? "opacity-100" : "opacity-70 group-hover:opacity-100"
+                    }`}>
+                      {item.label}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>

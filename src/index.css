@@ -98,7 +98,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-md;
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-md transition-all duration-300 hover:shadow-lg;
   }
 
   .sos-button {
@@ -110,7 +110,7 @@
   }
 
   .nav-item {
-    @apply flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-she-pink dark:hover:bg-she-purple/30;
+    @apply flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-she-pink/30 dark:hover:bg-she-purple/30;
   }
 
   .fade-in {
@@ -128,4 +128,67 @@
   .scale-in {
     @apply animate-scale-in;
   }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg;
+  }
+  
+  .btn-primary {
+    @apply bg-she-purple text-white hover:bg-she-purple/90 shadow-md hover:shadow-lg transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply bg-she-pink text-she-purple hover:bg-she-pink/90 shadow-md hover:shadow-lg transition-all duration-300;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-she-purple to-she-deepPink text-transparent bg-clip-text;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-to-r from-she-pink/50 to-she-purple/50;
+  }
+}
+
+/* Enhanced animations for smoother UI */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Glass effect for cards with hover state */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.glass-effect:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* Custom scrollbar for a more refined look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 241, 241, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(147, 112, 219, 0.5);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 112, 219, 0.8);
 }
