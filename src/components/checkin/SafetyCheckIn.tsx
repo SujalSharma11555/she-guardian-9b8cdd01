@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Clock, CheckCircle, X, Bell, Shield } from "lucide-react";
+import { Clock, CheckCircle, X, Bell, Shield, MapPin, Timer } from "lucide-react";
 
 const SafetyCheckIn: React.FC = () => {
   const [isCheckInActive, setIsCheckInActive] = useState(false);
@@ -15,6 +15,7 @@ const SafetyCheckIn: React.FC = () => {
   const [customActivity, setCustomActivity] = useState("");
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Clean up interval on component unmount
   useEffect(() => {
@@ -25,11 +26,40 @@ const SafetyCheckIn: React.FC = () => {
     };
   }, [timerInterval]);
 
+  // Get current location when check-in starts
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          toast({
+            title: "Location Error",
+            description: "Unable to get your current location. Your last known location will be used instead.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Location Not Supported",
+        description: "Geolocation is not supported by your browser.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const startCheckIn = () => {
     const durationInMinutes = parseInt(duration, 10);
     const durationInSeconds = durationInMinutes * 60;
     setTimeRemaining(durationInSeconds);
     setIsCheckInActive(true);
+    getCurrentLocation();
 
     const intervalId = setInterval(() => {
       setTimeRemaining((prevTime) => {
@@ -52,12 +82,24 @@ const SafetyCheckIn: React.FC = () => {
     });
   };
 
+  const extendTime = () => {
+    const extraMinutes = 10;
+    const extraSeconds = extraMinutes * 60;
+    setTimeRemaining(prevTime => prevTime + extraSeconds);
+    
+    toast({
+      title: "Time Extended",
+      description: `Added ${extraMinutes} minutes to your check-in timer.`,
+    });
+  };
+
   const endCheckIn = () => {
     if (timerInterval) {
       clearInterval(timerInterval);
       setTimerInterval(null);
     }
     setIsCheckInActive(false);
+    setLocation(null);
     
     toast({
       title: "Safety Check-In Completed",
@@ -102,13 +144,14 @@ const SafetyCheckIn: React.FC = () => {
         {isCheckInActive ? (
           <div className="space-y-6">
             <div className="text-center">
-              <div className="relative w-32 h-32 mx-auto">
-                <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative w-36 h-36 mx-auto">
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
                   <div className="text-3xl font-bold text-she-purple">
                     {formatTimeRemaining()}
                   </div>
+                  <div className="text-xs text-gray-500 mt-1">remaining</div>
                 </div>
-                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
+                <svg className="w-36 h-36 transform -rotate-90" viewBox="0 0 100 100">
                   <circle 
                     cx="50" cy="50" r="45" 
                     fill="none" 
@@ -126,7 +169,6 @@ const SafetyCheckIn: React.FC = () => {
                   />
                 </svg>
               </div>
-              <p className="text-sm text-gray-500 mt-2">Time remaining until check-in required</p>
             </div>
             
             <div className="bg-she-pink/20 p-4 rounded-md">
@@ -138,10 +180,25 @@ const SafetyCheckIn: React.FC = () => {
                   <p className="text-xs text-gray-500">
                     Check-in required in {formatTimeRemaining()}
                   </p>
+                  {location && (
+                    <div className="flex items-center text-xs text-gray-500 mt-1">
+                      <MapPin size={12} className="mr-1" />
+                      <span>Location tracking active</span>
+                    </div>
+                  )}
                 </div>
                 <Bell className="text-she-purple" size={20} />
               </div>
             </div>
+            
+            <Button
+              variant="outline"
+              className="w-full border-dashed border-gray-300 text-gray-500"
+              onClick={extendTime}
+            >
+              <Timer className="mr-2" size={16} />
+              Add 10 minutes to timer
+            </Button>
             
             <div className="grid grid-cols-2 gap-3">
               <Button 
