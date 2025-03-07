@@ -68,7 +68,7 @@ const SOSButton: React.FC = () => {
   const progress = (pressDuration / requiredPressDuration) * 100;
   
   return (
-    <div className="relative flex items-center justify-center">
+    <div className="relative flex items-center justify-center w-full">
       {/* Outer pulse ring (animated) */}
       {isPressed && (
         <div className="absolute w-32 h-32 rounded-full bg-she-coral/20 animate-pulse-soft"></div>

@@ -38,7 +38,7 @@ const Index = () => {
       )}
       
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>© 2023 SHE-Guardian. Created by Anvi Agarwal & Sujal Sharma</p>
+        <p>© 2025 SHE-Guardian. Created by Anvi Agarwal & Sujal Sharma</p>
       </div>
     </div>
   );
